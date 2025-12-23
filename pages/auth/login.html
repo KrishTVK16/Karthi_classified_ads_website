@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - AdClassify</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="alternate icon" href="/favicon.ico">
+    <!-- Base path detection for GitHub Pages -->
+    <script src="../../assets/js/github-pages-base.js"></script>
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <link rel="alternate icon" href="../../favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 min-h-screen flex items-center justify-center py-12 px-4">
@@ -139,14 +141,15 @@
         </div>
     </div>
 
-    <script src="/assets/js/main.js"></script>
+    <script src="../../assets/js/main.js"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if (validateForm('loginForm')) {
                 showToast('Login successful!', 'success');
                 setTimeout(() => {
-                    window.location.href = '/pages/user/dashboard.html';
+                    const base = window.BASE_PATH || '/';
+                    window.location.href = base + 'pages/user/dashboard.html';
                 }, 1000);
             }
         });
