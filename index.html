@@ -21,7 +21,9 @@
                 const pathParts = path.split('/').filter(p => p && p !== 'index.html');
                 
                 // Special cases for known repository names (check first)
-                if (path.includes('/classified-ads-website-')) {
+                if (path.includes('/Karthi_classified_ads_website/')) {
+                    basePath = '/Karthi_classified_ads_website/';
+                } else if (path.includes('/classified-ads-website-')) {
                     basePath = '/classified-ads-website-/';
                 } else if (path.includes('/classified-ads-website/')) {
                     basePath = '/classified-ads-website/';
