@@ -18,31 +18,17 @@
             if (hostname.includes('github.io')) {
                 // Extract repository name from path
                 // Pattern: /repository-name/ or /repository-name/index.html
-                const pathParts = path.split('/').filter(p => p && p !== 'index.html');
+                const pathParts = path.split('/').filter(p => p && p !== 'index.html' && p !== '');
                 
-                // Special cases for known repository names (check first)
-                if (path.includes('/Karthi_classified_ads_website/')) {
-                    basePath = '/Karthi_classified_ads_website/';
-                } else if (path.includes('/classified-ads-website-')) {
-                    basePath = '/classified-ads-website-/';
-                } else if (path.includes('/classified-ads-website/')) {
-                    basePath = '/classified-ads-website/';
-                } else if (pathParts.length > 0) {
-                    // General case: extract repository name from path
+                if (pathParts.length > 0) {
+                    // General case: extract repository name from first path segment
                     const repoName = pathParts[0];
                     // Make sure it's not a file (doesn't have extension)
                     if (repoName && !repoName.match(/\.(html|css|js|png|jpg|jpeg|svg|ico|gif|webp)$/i)) {
                         basePath = '/' + repoName + '/';
                     }
-                } else {
-                    // If we're at root of a GitHub Pages site, try to detect from hostname
-                    // Pattern: username.github.io means it's a user/organization site (base = /)
-                    // Pattern: username.github.io/repo-name means it's a project site
-                    // For project sites, we need to extract from the first path segment
-                    // But if path is just '/' or '/index.html', we can't detect it automatically
-                    // So we'll default to '/' and let the fallback paths handle it
-                    basePath = '/';
                 }
+                // If pathParts is empty, we're at root, so basePath stays '/'
             }
             
             window.BASE_PATH = basePath;
@@ -512,6 +498,35 @@
             return baseClean + cleanPath;
         }
         
+        // Function to fix all links in a component to use the base path
+        function fixLinksInComponent(container) {
+            const base = window.BASE_PATH || '/';
+            if (base === '/') return; // No need to fix if base is root
+            
+            // Fix all href attributes in anchor tags
+            const links = container.querySelectorAll('a[href]');
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                // Skip external links, javascript:, mailto:, tel:, and links that already have the base
+                if (href && 
+                    !href.startsWith('http://') && 
+                    !href.startsWith('https://') && 
+                    !href.startsWith('javascript:') &&
+                    !href.startsWith('mailto:') &&
+                    !href.startsWith('tel:') &&
+                    !href.startsWith('#') &&
+                    !href.startsWith(base)) {
+                    // If it starts with /, replace with base path
+                    if (href.startsWith('/')) {
+                        link.setAttribute('href', base + href.substring(1));
+                    } else {
+                        // Relative path - should already work with base tag, but ensure it
+                        link.setAttribute('href', base + href);
+                    }
+                }
+            });
+        }
+        
         // Function to try loading from multiple paths
         function loadComponent(paths, placeholderId) {
             let currentIndex = 0;
@@ -535,6 +550,8 @@
                         if (placeholder) {
                             placeholder.innerHTML = data;
                             console.log(`Successfully loaded ${placeholderId} from: ${currentPath}`);
+                            // Fix all links in the loaded component to use base path
+                            fixLinksInComponent(placeholder);
                         }
                     })
                     .catch(err => {

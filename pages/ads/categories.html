@@ -4,10 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Categories - AdClassify</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="alternate icon" href="/favicon.ico">
+    <!-- Base path detection for GitHub Pages -->
+    <script>
+        (function() {
+            const path = window.location.pathname;
+            const hostname = window.location.hostname;
+            let basePath = '/';
+            
+            if (hostname.includes('github.io')) {
+                const pathParts = path.split('/').filter(p => p && p !== 'index.html' && p !== '');
+                if (pathParts.length > 0) {
+                    const repoName = pathParts[0];
+                    if (repoName && !repoName.match(/\.(html|css|js|png|jpg|jpeg|svg|ico|gif|webp)$/i)) {
+                        basePath = '/' + repoName + '/';
+                    }
+                }
+            }
+            
+            window.BASE_PATH = basePath;
+            if (!document.querySelector('base')) {
+                const base = document.createElement('base');
+                base.href = basePath;
+                document.head.insertBefore(base, document.head.firstChild);
+            }
+        })();
+    </script>
+    
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gradient-to-br from-gray-50 via-purple-50 to-blue-50">
@@ -46,7 +72,7 @@
         <!-- Categories Grid - Unique Card Design -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             <!-- Category 1 -->
-            <a href="/pages/ads/listing.html?category=cars" class="group relative overflow-hidden rounded-2xl md:rounded-3xl bg-white shadow-xl transform hover:scale-105 transition-all duration-300">
+            <a href="pages/ads/listing.html?category=cars" class="group relative overflow-hidden rounded-2xl md:rounded-3xl bg-white shadow-xl transform hover:scale-105 transition-all duration-300">
                 <div class="absolute inset-0 bg-gradient-to-br from-red-500 to-orange-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="relative p-6 md:p-8 text-white">
                     <div class="w-16 md:w-20 h-16 md:h-20 bg-white/20 backdrop-blur-md rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform mx-auto">
@@ -334,14 +360,72 @@
     <div id="footer-placeholder"></div>
 
     <script>
-        fetch('/components/header.html')
+        function fixLinksInComponent(container) {
+            const base = window.BASE_PATH || '/';
+            if (base === '/') return;
+            
+            const links = container.querySelectorAll('a[href]');
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && 
+                    !href.startsWith('http://') && 
+                    !href.startsWith('https://') && 
+                    !href.startsWith('javascript:') &&
+                    !href.startsWith('mailto:') &&
+                    !href.startsWith('tel:') &&
+                    !href.startsWith('#') &&
+                    !href.startsWith(base)) {
+                    if (href.startsWith('/')) {
+                        link.setAttribute('href', base + href.substring(1));
+                    }
+                }
+            });
+        }
+        
+        // Fix all links in the entire document
+        function fixAllLinks() {
+            fixLinksInComponent(document.body);
+        }
+        
+        function getPath(path) {
+            const base = window.BASE_PATH || '/';
+            if (path.startsWith('http://') || path.startsWith('https://')) return path;
+            const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+            const baseClean = base.endsWith('/') ? base : base + '/';
+            return baseClean + cleanPath;
+        }
+        
+        const base = window.BASE_PATH || '/';
+        const headerPath = getPath('components/header.html');
+        const footerPath = getPath('components/footer.html');
+        
+        fetch(headerPath)
             .then(response => response.text())
-            .then(data => document.getElementById('header-placeholder').innerHTML = data);
-        fetch('/components/footer.html')
+            .then(data => {
+                const placeholder = document.getElementById('header-placeholder');
+                if (placeholder) {
+                    placeholder.innerHTML = data;
+                    fixLinksInComponent(placeholder);
+                }
+            });
+        fetch(footerPath)
             .then(response => response.text())
-            .then(data => document.getElementById('footer-placeholder').innerHTML = data);
+            .then(data => {
+                const placeholder = document.getElementById('footer-placeholder');
+                if (placeholder) {
+                    placeholder.innerHTML = data;
+                    fixLinksInComponent(placeholder);
+                }
+            });
+        
+        // Fix all links in the page after DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fixAllLinks);
+        } else {
+            fixAllLinks();
+        }
     </script>
-    <script src="/assets/js/main.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>
 
