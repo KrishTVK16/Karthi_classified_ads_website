@@ -24,12 +24,15 @@
     // Set global base path
     window.BASE_PATH = detectBasePath();
     
-    // Set base tag in head
+    // Set base tag in head - DISABLED: This breaks relative paths (../../) for scripts/css on sub-pages
+    // We will rely on fixLinksInContainer to handle absolute links instead
+    /* 
     if (!document.querySelector('base')) {
         const base = document.createElement('base');
         base.href = window.BASE_PATH;
         document.head.insertBefore(base, document.head.firstChild);
-    }
+    } 
+    */
     
     // Helper to get path with base
     window.getPathWithBase = function(path) {
