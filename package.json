@@ -4,14 +4,18 @@
   "description": "Modern Classified Ads Website",
   "main": "index.html",
   "scripts": {
+    "start": "npx http-server . -c-1",
     "dev": "live-server --port=3000",
     "build": "echo 'Build complete'"
   },
-  "keywords": ["classified", "ads", "marketplace"],
+  "keywords": [
+    "classified",
+    "ads",
+    "marketplace"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "live-server": "^1.2.2"
   }
 }
-
